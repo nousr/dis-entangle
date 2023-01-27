@@ -4,9 +4,12 @@ import os
 from glob import glob
 
 import click
+from tqdm import tqdm
 from dis_entangle import build_model, load_image, predict
 from PIL import Image
 
+
+IMG_EXTENSIONS = ["jpg", "png", "gif", "jpeg"]
 
 @click.command()
 @click.option("--image_folder", default="images", help="input path to load images from.")
@@ -20,8 +23,12 @@ def main(image_folder: str, mask_folder: str):
     if not os.path.exists(mask_folder):
         os.makedirs(mask_folder)
 
-    for image in glob(os.path.join(image_folder, "*.{jpg,png,gif,jpeg}")):
-        # load an image from the path
+    image_files =[]
+
+    for ext in IMG_EXTENSIONS:
+        image_files.extend(glob(os.path.join(image_folder, f"*.{ext}")))
+
+    for image in tqdm(image_files):
         image_tensor, original_size = load_image(image)
         mask = predict(model, image_tensor, original_size)
         mask = Image.fromarray(mask)
