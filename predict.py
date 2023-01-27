@@ -2,7 +2,7 @@
 
 import click
 from PIL import Image
-from dis_entangle.helpers import build_model, predict, load_image
+from dis_entangle import build_model, predict, load_image
 
 
 @click.command()
