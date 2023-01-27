@@ -15,6 +15,8 @@ def main(image_folder: str, mask_folder: str):
     """Main function."""
     model = build_model()
 
+    if not os.path.exists(image_folder):
+        os.makedirs(image_folder)
     if not os.path.exists(mask_folder):
         os.makedirs(mask_folder)
 
