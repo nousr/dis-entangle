@@ -1,6 +1,13 @@
 """Helpers for dis-entangle"""
 
-from dis_entangle.data_loader_cache import normalize
+from io import BytesIO
+
+import numpy as np
+import requests
+import torch
+from dis_entangle.data_loader_cache import im_preprocess, im_reader, normalize
+from torchvision import transforms
+
 
 class GOSNormalize():
     '''
@@ -16,4 +23,18 @@ class GOSNormalize():
         return image
 
     def __repr__(self):
-        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+        return f"self.__class__.__name__:(mean={self.mean}, std={self.std})"
+
+
+def load_image(im_path, hypar):
+    """Load an image from a path and preprocess it."""
+    transform =  transforms.Compose([GOSNormalize([0.5,0.5,0.5],[1.0,1.0,1.0])])
+
+    if im_path.startswith("http"):
+        im_path = BytesIO(requests.get(im_path, timeout=60).content)
+
+    im = im_reader(im_path)
+    im, im_shp = im_preprocess(im, hypar["cache_size"])
+    im = torch.divide(im,255.0)
+    shape = torch.from_numpy(np.array(im_shp))
+    return transform(im).unsqueeze(0), shape.unsqueeze(0) # make a batch of image, shape
