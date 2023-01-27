@@ -32,8 +32,8 @@ def main(image_folder: str, mask_folder: str):
         image_tensor, original_size = load_image(image)
         mask = predict(model, image_tensor, original_size)
         mask = Image.fromarray(mask)
-        save_path = os.path.join(mask_folder, os.path.basename(image))
-        print(f"Saving mask to {save_path}")
+        filename, extension = os.path.basename(image).split(".")
+        save_path = os.path.join(mask_folder, f"{filename}_mask.{extension}")
         mask.save(save_path)
 
 
