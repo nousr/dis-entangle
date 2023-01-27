@@ -4,7 +4,7 @@ from torchvision import models
 import torch.nn.functional as F
 
 
-bce_loss = nn.BCELoss(size_average=True)
+bce_loss = nn.BCELoss(reduction='mean')
 
 
 def muti_loss_fusion(preds, target):
@@ -24,10 +24,10 @@ def muti_loss_fusion(preds, target):
     return loss0, loss
 
 
-fea_loss = nn.MSELoss(size_average=True)
-kl_loss = nn.KLDivLoss(size_average=True)
-l1_loss = nn.L1Loss(size_average=True)
-smooth_l1_loss = nn.SmoothL1Loss(size_average=True)
+fea_loss = nn.MSELoss(reduction='mean')
+kl_loss = nn.KLDivLoss(reduction='mean')
+l1_loss = nn.L1Loss(reduction='mean')
+smooth_l1_loss = nn.SmoothL1Loss(reduction='mean')
 
 
 def muti_loss_fusion_kl(preds, target, dfs, fs, mode="MSE"):
@@ -81,7 +81,7 @@ class REBNCONV(nn.Module):
 ## upsample tensor 'src' to have the same spatial size with tensor 'tar'
 def _upsample_like(src, tar):
 
-    src = F.upsample(src, size=tar.shape[2:], mode="bilinear")
+    src = F.interpolate(src, size=tar.shape[2:], mode="bilinear")
 
     return src
 
@@ -477,7 +477,7 @@ class ISNetGTEncoder(nn.Module):
 
         # d0 = self.outconv(torch.cat((d1,d2,d3,d4,d5,d6),1))
 
-        return [F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6)], [
+        return [torch.sigmoid(d1), torch.sigmoid(d2), torch.sigmoid(d3), torch.sigmoid(d4), torch.sigmoid(d5), torch.sigmoid(d6)], [
             hx1,
             hx2,
             hx3,
@@ -611,7 +611,7 @@ class ISNetDIS(nn.Module):
 
         # d0 = self.outconv(torch.cat((d1,d2,d3,d4,d5,d6),1))
 
-        return [F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6)], [
+        return [torch.sigmoid(d1), torch.sigmoid(d2), torch.sigmoid(d3), torch.sigmoid(d4), torch.sigmoid(d5), torch.sigmoid(d6)], [
             hx1d,
             hx2d,
             hx3d,

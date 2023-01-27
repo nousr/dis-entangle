@@ -86,21 +86,19 @@ def predict(net, inputs_val, original_size):
     """
 
     inputs_val = inputs_val.to(device=net.device, dtype=net.dtype)
-    print(inputs_val.dtype)
     ds_val = net(inputs_val)[0]  # list of 6 results
 
     pred_val = ds_val[0][0, :, :, :]  # B x 1 x H x W    # we want the first one which is the most accurate prediction
 
     ## recover the prediction spatial size to the orignal image size
     pred_val = torch.squeeze(
-        F.upsample(torch.unsqueeze(pred_val, 0), (original_size[0][0], original_size[0][1]), mode="bilinear")
+        F.interpolate(torch.unsqueeze(pred_val, 0), (original_size[0][0], original_size[0][1]), mode="bilinear")
     )
 
     ma = torch.max(pred_val)
     mi = torch.min(pred_val)
     pred_val = (pred_val - mi) / (ma - mi)  # max = 1
 
-    print(net.device)
     if net.device == "cuda":
         torch.cuda.empty_cache()
 
