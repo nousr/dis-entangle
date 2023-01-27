@@ -62,7 +62,7 @@ def build_model(precision="half", device="cuda", cache_dir=os.path.expanduser("~
         url = "https://drive.google.com/uc?id=1KyMpRjewZdyYfxHPYcd-ZbanIXtin0Sn"
         gdown.download(url, model_path, use_cookies=False)
 
-    net = ISNetDIS()
+    net = ISNetDIS(device=device, dtype=torch.float16 if precision == "half" else torch.float32)
 
     # convert to half precision
     if precision == "half":
@@ -85,8 +85,8 @@ def predict(net, inputs_val, original_size):
     Given an Image, predict the mask
     """
 
-    inputs_val.to(device=net.device, dtype=net.dtype)
-
+    inputs_val = inputs_val.to(device=net.device, dtype=net.dtype)
+    print(inputs_val.dtype)
     ds_val = net(inputs_val)[0]  # list of 6 results
 
     pred_val = ds_val[0][0, :, :, :]  # B x 1 x H x W    # we want the first one which is the most accurate prediction
